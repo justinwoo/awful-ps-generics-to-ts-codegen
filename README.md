@@ -19,16 +19,18 @@ Example output:
 
 ```ts
 const files: Route<Unused, Path[]> = {
-  method: GET,
+  method: "GET",
   url: "/api/files"
 }
 
 const watched: Route<Unused, FileData[]> = {
-  method: GET,
+  method: "GET",
   url: "/api/watched"
 }
 
-type Path = String // this is a LIE
+type Path = string // this is a LIE
+
+type Flag = boolean // this is a LIE
 
 type FileData = {
   path: Path
