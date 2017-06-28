@@ -4,11 +4,9 @@ import Prelude
 
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-import Data.Array (head)
-import Data.Foldable (intercalate, length)
+import Data.Foldable (fold, intercalate)
 import Data.Generic.Rep (class Generic, Argument, Constructor, Field, Product, Rec)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..), fst, snd)
 import Type.Proxy (Proxy(..))
@@ -118,7 +116,9 @@ instance argumentExtractFields ::
   ( GTypeName a
   )
   => ExtractFields (Argument a) where
-  extractFields _ = pure <<< Tuple "" $ gTypeName (Proxy :: Proxy a)
+  extractFields _ =
+    pure <<< Tuple "" $
+      gTypeName (Proxy :: Proxy a)
 
 instance fieldExtractFields ::
   ( IsSymbol field
@@ -153,15 +153,15 @@ writeTypeDefinition :: forall a rep
   => Proxy a
   -> String
 writeTypeDefinition proxy =
-  if length fields == 1 && (fst <$> head fields) == Just "" -- simple newtype check
-  then
-    "type " <> name <> " = "
-      <> (fromMaybe "" $ snd <$> head fields)
-      <> " // this is a LIE\n"
-  else
-    "type " <> name <> " = {\n"
-      <> contents
-      <> "\n}\n"
+  case fst <$> fields of
+    [""] -> -- simple newtype check
+      "type " <> name <> " = "
+        <> (fold $ snd <$> fields)
+        <> " // this is a LIE\n"
+    _ ->
+      "type " <> name <> " = {\n"
+        <> contents
+        <> "\n}\n"
   where
     name = nameOf proxy
     fields = extractFields (Proxy :: Proxy rep)
