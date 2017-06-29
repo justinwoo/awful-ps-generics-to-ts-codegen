@@ -1,5 +1,7 @@
 # awful-ps-generics-to-ts-codegen
 
+There's a blog post for this here: http://qiita.com/kimagure/items/cc0ea2982abdf1625e87
+
 Demo generation of Typescript code using information about Purescript types using Generics-Rep. Similar idea to [godawful-purescript-codegen-demo](https://github.com/justinwoo/godawful-codegen-demo).
 
 Unfortunately, it doesn't seem like much can actually be done with the phantom type data that would be passed to Route in this case other than to start generating things like `interface Decode<T> { parseJSON: string => Either<Error, T>` } or some painful approximation.
