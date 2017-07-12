@@ -5,11 +5,21 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Data.Foldable (fold, intercalate)
-import Data.Generic.Rep (class Generic, Argument, Constructor, Field, Product, Rec)
+import Data.Generic.Rep (class Generic, Argument(..), Constructor(..), Field, Product, Rec)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..), fst, snd)
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
+
+-- GArray because Gary said I can't have Generic Array
+newtype GArray a = GArray (Array a)
+instance genericGArray
+  :: Generic (GArray a) (Constructor "Array" (Argument a)) where
+  to _ = GArray [] -- you can see this is a lie
+  from _ = Constructor (Argument (undefined)) -- i think it's fine though
+    where
+      undefined = unsafeCoerce unit
 
 newtype Unused = Unused String
 derive instance genericUnused :: Generic Unused _
@@ -39,13 +49,13 @@ newtype Route req res = Route
   }
 derive instance genericRoute :: Generic (Route req res) _
 
-files :: Route Unused (Array Path)
+files :: Route Unused (GArray Path)
 files = Route
   { method: GET
   , url: "/api/files"
   }
 
-watched :: Route Unused (Array FileData)
+watched :: Route Unused (GArray FileData)
 watched = Route
   { method: GET
   , url: "/api/watched"
